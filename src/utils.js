@@ -1,13 +1,13 @@
 const { default: axios } = require("axios");
 
-exports.rootServerUrl = "http://localhost:5000";
+const rootServerUrl = "https://show-booking-api.herokuapp.com";
 
-exports.getLocations = () => {
+const getLocations = () => {
   console.log("Getting Locations");
 
   return new Promise(async (resolve, reject) => {
     try {
-      let { data } = await axios.get(this.rootServerUrl + "/locations");
+      let { data } = await axios.get(rootServerUrl + "/locations");
       resolve(data);
     } catch (error) {
       console.log({ error });
@@ -16,12 +16,12 @@ exports.getLocations = () => {
   });
 };
 
-exports.addMovieToDb = (bodyData) => {
+const addMovieToDb = (bodyData) => {
   console.log("Adding Movie");
 
   return new Promise(async (resolve, reject) => {
     try {
-      let { data } = await axios.post(this.rootServerUrl + "/movies", bodyData);
+      let { data } = await axios.post(rootServerUrl + "/movies", bodyData);
       resolve(data);
     } catch (error) {
       console.log(error);
@@ -30,14 +30,14 @@ exports.addMovieToDb = (bodyData) => {
   });
 };
 
-exports.updateMovieToDb = (bodyData) => {
+const updateMovieToDb = (bodyData) => {
   console.log("Updating Movie");
 
   return new Promise(async (resolve, reject) => {
     try {
       const { _id } = bodyData;
       let { data } = await axios.post(
-        this.rootServerUrl + "/movies/" + _id,
+        rootServerUrl + "/movies/" + _id,
         bodyData
       );
       resolve(data);
@@ -48,12 +48,12 @@ exports.updateMovieToDb = (bodyData) => {
   });
 };
 
-exports.loadMovies = () => {
+const loadMovies = () => {
   console.log("Loading Movies");
 
   return new Promise(async (resolve, reject) => {
     try {
-      let { data } = await axios.get(this.rootServerUrl + "/movies");
+      let { data } = await axios.get(rootServerUrl + "/movies");
       resolve(data);
     } catch (error) {
       console.log({ error });
@@ -61,3 +61,5 @@ exports.loadMovies = () => {
     }
   });
 };
+
+module.exports = { addMovieToDb, updateMovieToDb, loadMovies, getLocations };
