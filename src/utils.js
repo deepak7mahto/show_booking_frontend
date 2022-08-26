@@ -62,4 +62,11 @@ const loadMovies = () => {
   });
 };
 
-module.exports = { addMovieToDb, updateMovieToDb, loadMovies, getLocations };
+const utils = {
+  addMovieToDb,
+  getLocations,
+  loadMovies,
+  updateMovieToDb,
+};
+
+export default utils;

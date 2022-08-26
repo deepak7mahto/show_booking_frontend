@@ -9,7 +9,9 @@ import {
   ModalHeader,
 } from "react-bootstrap";
 import Select from "react-select";
-import { addMovieToDb, updateMovieToDb } from "../utils";
+import utils from "../utils";
+
+const { addMovieToDb, updateMovieToDb } = utils;
 
 const AddMovie = ({ locationOptions, reloadMovies, row }) => {
   const [showModal, setShowModal] = useState(false);
