@@ -1,79 +1,164 @@
 import { useEffect, useState } from "react";
-import { Col, Container, Row } from "react-bootstrap";
+import { Col, Form, Row } from "react-bootstrap";
 import BootstrapTable from "react-bootstrap-table-next";
-import { loadMovies } from "../utils";
-import AddMovie from "./AddMovie";
-import "react-bootstrap-table-next/dist/react-bootstrap-table2.min.css";
-import "react-bootstrap-table2-filter/dist/react-bootstrap-table2-filter.min.css";
 import Select from "react-select";
+import AddMovie from "./AddMovie";
+import MovieLocationDetails from "./MovieLocationDetails";
 
-const ShowMovies = () => {
-	const [moviesData, setMoviesData] = useState([]);
+const ShowMovies = ({ moviesData, reloadMovies, locationOptions }) => {
+  // console.log({ moviesData });
 
-	useEffect(() => {
-		reloadMovies();
-	}, []);
+  const [data, setData] = useState([]);
+  const [selectedFilter, setSelectedFilter] = useState({
+    genre: [],
+    language: [],
+    location: [],
+  });
 
-	const locationFormatter = (cell, row) => {
-		console.log(cell);
-		return <div>{cell.length}</div>;
-	};
+  useEffect(() => {
+    let tempMoviesData = moviesData.filter((item) => {
+      const { language, genre, locations } = item;
 
-	const columns = [
-		{
-			dataField: "movie_name",
-			text: "Movie (↓↑)",
-			sort: true,
-		},
-		{
-			dataField: "cast_name",
-			text: "Cast",
-		},
-		{
-			dataField: "language",
-			text: "Language (↓↑)",
-			sort: true,
-		},
-		{
-			dataField: "genre",
-			text: "Genre",
-		},
-		{
-			dataField: "locations",
-			text: "No. of Locations",
-			formatter: locationFormatter,
-		},
-	];
+      let isGenreMatched = selectedFilter.genre.indexOf(genre) !== -1;
+      let islanguageMatched = selectedFilter.language.indexOf(language) !== -1;
 
-	const reloadMovies = () => {
-		loadMovies().then((data) => {
-			// console.log({ data });
-			setMoviesData(data);
-		});
-	};
+      let matchedLocation = locations.filter(
+        ({ location }) => selectedFilter.location.indexOf(location) !== -1
+      );
 
-	return (
-		<Container fluid>
-			<div className="display-1">Movies</div>
-			<Row style={{ marginTop: "10px" }}>
-				<AddMovie reloadMovies={reloadMovies} />
-			</Row>
-			<Row style={{ marginTop: "10px" }}>
-				<Col>
-					<Select />
-				</Col>
-				<Col>
-					<Select />
-				</Col>
-				<Col>
-					<Select />
-				</Col>
-			</Row>
-			<Row style={{ marginTop: "10px" }}>
-				<BootstrapTable keyField="_id" data={moviesData} columns={columns} />
-			</Row>
-		</Container>
-	);
+      if (isGenreMatched || islanguageMatched || matchedLocation.length > 0) {
+        return true;
+      }
+
+      return false;
+    });
+
+    console.log(tempMoviesData);
+
+    setData(tempMoviesData);
+  }, [selectedFilter, moviesData]);
+
+  const locationFormatter = (cell) => {
+    return <div>{cell.length}</div>;
+  };
+
+  const detaiilsFormatter = (cell, row) => {
+    return <MovieLocationDetails row={row} />;
+  };
+
+  const editMovieFormatter = (cell, row) => {
+    return (
+      <AddMovie
+        reloadMovies={reloadMovies}
+        locationOptions={locationOptions}
+        row={row}
+      />
+    );
+  };
+
+  const columns = [
+    {
+      dataField: "movie_name",
+      text: "Movie (↓↑)",
+      sort: true,
+    },
+    {
+      dataField: "cast_name",
+      text: "Cast",
+    },
+    {
+      dataField: "language",
+      text: "Language (↓↑)",
+      sort: true,
+    },
+    {
+      dataField: "genre",
+      text: "Genre",
+    },
+    {
+      dataField: "locations",
+      text: "No. of Locations",
+      formatter: locationFormatter,
+    },
+    {
+      dataField: "",
+      text: "Show Details",
+      formatter: detaiilsFormatter,
+    },
+    {
+      dataField: "",
+      text: "Edit Movie",
+      formatter: editMovieFormatter,
+    },
+  ];
+
+  const prepareOptions = (type) => {
+    let allData = moviesData.map((item) => item[type]);
+    let dataSet = new Set(allData);
+    let uniqData = Array.from(dataSet);
+    return uniqData.map((item) => {
+      return { value: item, label: item };
+    });
+  };
+
+  const onFilterChange = (selected, { name }) => {
+    setSelectedFilter({
+      ...selectedFilter,
+      [name]: selected.map((item) => item.value),
+    });
+  };
+
+  const onLocationFilterChange = (selected, { name }) => {
+    setSelectedFilter({
+      ...selectedFilter,
+      [name]: selected.map((item) => item.label),
+    });
+  };
+
+  // console.log({ data });
+
+  return (
+    <>
+      <Col>
+        <Row style={{ marginTop: "10px" }}>
+          <Col>
+            <Form.Label>Language Filter</Form.Label>
+            <Select
+              isMulti
+              name="language"
+              options={prepareOptions("language")}
+              onChange={onFilterChange}
+            />
+          </Col>
+          <Col>
+            <Form.Label>Location Filter</Form.Label>
+            <Select
+              name="location"
+              isMulti
+              options={locationOptions}
+              onChange={onLocationFilterChange}
+            />
+          </Col>
+          <Col>
+            <Form.Label>Genre Filter</Form.Label>
+            <Select
+              isMulti
+              name="genre"
+              options={prepareOptions("genre")}
+              onChange={onFilterChange}
+            />
+          </Col>
+        </Row>
+        <Row style={{ marginTop: "10px" }}>
+          <BootstrapTable
+            keyField="_id"
+            data={data.length === 0 ? moviesData : data}
+            columns={columns}
+          />
+        </Row>
+      </Col>
+    </>
+  );
 };
 
 export default ShowMovies;

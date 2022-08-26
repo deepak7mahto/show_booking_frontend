@@ -2,7 +2,7 @@ import { ProSidebar, Menu, MenuItem, SidebarContent, SidebarHeader, SidebarFoote
 import "react-pro-sidebar/dist/css/styles.css";
 
 import "./App.css";
-import ShowMovies from "./movies/ShowMovies";
+import Movies from "./movies/Movies";
 
 function App() {
 	return (
@@ -33,7 +33,7 @@ function App() {
 					<div style={{ padding: "10px" }}>For Educational Purpose</div>
 				</SidebarFooter>
 			</ProSidebar>
-			<ShowMovies />
+			<Movies />
 		</div>
 	);
 }
